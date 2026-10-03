@@ -1,0 +1,5 @@
+-- Seed data for local development and preview branches.
+--
+-- Empty for now: seed rows belong to the migration that creates their table
+-- (e.g. the starter reflection questions in BWX-38). Keep this file
+-- idempotent -- it is re-run on every `supabase db reset`.

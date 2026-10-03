@@ -1,0 +1,28 @@
+name: supabase
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Proves the migrations apply to an empty database in order, then lints the
+  # result. Mark this as a required check on PRs: it is the only thing standing
+  # between a broken migration and the live database, since there is one
+  # project and no preview branches on the Free plan.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v3
+        with:
+          version: latest
+      - name: Apply all migrations to a fresh database
+        run: supabase db start && supabase db reset --local
+      - name: Lint
+        run: supabase db lint --local --schema public,private --fail-on warning
