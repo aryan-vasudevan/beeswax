@@ -20,9 +20,9 @@ later moves `supabase/` under a workspace, that setting has to move with it.
 
 ## Environments
 
-| Where | Database | How it gets migrations |
-| --- | --- | --- |
-| Local | Postgres in Docker, `supabase start` | `supabase db reset` |
+| Where  | Database                               | How it gets migrations                         |
+| ------ | -------------------------------------- | ---------------------------------------------- |
+| Local  | Postgres in Docker, `supabase start`   | `supabase db reset`                            |
 | Shared | `beeswax` — ref `xpsztpxzfgwrbrwvtjks` | Supabase GitHub integration, on push to `main` |
 
 There is deliberately no separate dev project. The Free plan allows two active
@@ -37,7 +37,7 @@ you -- several people contributing to the same snapshot, auth against real
 providers, a build running on an actual phone.
 
 **When this needs to change:** the day the project holds data someone would be
-upset to lose. At that point, create a *fresh* project, point the GitHub
+upset to lose. At that point, create a _fresh_ project, point the GitHub
 integration at it, and let it become prod -- the current one is demoted to dev.
 That swap is cheap precisely because the whole schema is in `migrations/`: the
 new project gets it by replaying the folder. Do not promote a project that has
