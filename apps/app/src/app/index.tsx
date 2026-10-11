@@ -1,21 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { PlaceholderScreen } from '@/components/placeholder-screen';
 
-export default function Home() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Beeswax</Text>
-    </View>
-  );
+export default function Hive() {
+  return <PlaceholderScreen title="Hive" note="Your snapshots as cells. Comes in BWX-19." />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-});
