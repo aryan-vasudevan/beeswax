@@ -17,8 +17,8 @@ npm workspaces. Run everything from the repo root.
 
 ```sh
 npm install
-cp .env.example .env    # fill in from `supabase status`
-supabase start
+cp apps/app/.env.example apps/app/.env    # fill in from `supabase status`
+supabase start          # then sign in as alice@beeswax.test / password123
 npm start               # then press i, a or w
 ```
 
