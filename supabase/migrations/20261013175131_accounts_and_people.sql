@@ -332,7 +332,7 @@ as $$
 $$;
 
 -- True if this is the self person of an account that lets itself be found
--- and has no block with the caller. Lets you add someone you found through
+-- and has no block with the caller, and is not the caller. Lets you add someone you found through
 -- public.find_account without making everyone visible.
 create function private.is_discoverable_self_person(p_person_id uuid)
 returns boolean
@@ -347,6 +347,7 @@ as $$
     join public.account_settings s on s.account_id = p.account_id
     where p.id = p_person_id
       and p.account_id = p.created_by
+      and p.account_id <> (select auth.uid())
       and s.discoverable
       and not private.is_blocked(p.account_id, (select auth.uid()))
   );
