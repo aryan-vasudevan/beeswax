@@ -65,3 +65,9 @@ select 'a1111111-1111-1111-1111-111111111111'::uuid, id, 'family'::public.relati
 from public.person
 where id in ('d4444444-4444-4444-4444-444444444444', 'e5555555-5555-5555-5555-555555555555')
 on conflict (account_id, person_id) do nothing;
+
+-- Alice and Bob are friends; Carol has a pending request to Alice.
+insert into public.friendship (requester_id, addressee_id, status, responded_at) values
+  ('a1111111-1111-1111-1111-111111111111', 'b2222222-2222-2222-2222-222222222222', 'accepted', now()),
+  ('c3333333-3333-3333-3333-333333333333', 'a1111111-1111-1111-1111-111111111111', 'pending', null)
+on conflict do nothing;
