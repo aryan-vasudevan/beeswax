@@ -28,6 +28,13 @@
 -- linked provider (email, Apple, Google) in auth.identities; a public copy
 -- would only drift from it.
 
+-- Foundations fix -----------------------------------------------------------
+
+-- Pin the search_path of the shared updated_at trigger (BWX-3), as the
+-- Supabase advisors require for every function. It only calls now(), which
+-- lives in pg_catalog and is always found.
+alter function private.set_updated_at() set search_path = '';
+
 -- account -------------------------------------------------------------------
 
 create table public.account (
