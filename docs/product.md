@@ -1,6 +1,6 @@
 # Beeswax — product specification
 
-**Your memories are scattered. Your experiences aren't.**
+**Every memory, a little sweeter.**
 
 Snapchat captures moments. Photo libraries store them. Beeswax reconstructs
 the experiences behind them.
