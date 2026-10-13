@@ -53,7 +53,7 @@ insert into public.person (id, created_by, display_name) values
 on conflict (id) do nothing;
 
 insert into public.relationship (account_id, person_id, label)
-select 'a1111111-1111-1111-1111-111111111111', p.id, r.label::public.relationship_label
+select 'a1111111-1111-1111-1111-111111111111'::uuid, p.id, r.label::public.relationship_label
 from (values
   ('bob', 'friend'),
   ('carol', 'classmate')
@@ -61,7 +61,7 @@ from (values
 join public.account a on a.username = r.username
 join public.person p on p.account_id = a.id and p.created_by = a.id
 union all
-select 'a1111111-1111-1111-1111-111111111111', id, 'family'
+select 'a1111111-1111-1111-1111-111111111111'::uuid, id, 'family'::public.relationship_label
 from public.person
 where id in ('d4444444-4444-4444-4444-444444444444', 'e5555555-5555-5555-5555-555555555555')
 on conflict (account_id, person_id) do nothing;
