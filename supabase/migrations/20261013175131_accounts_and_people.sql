@@ -18,6 +18,12 @@
 -- (BWX-46), both get his account_id and keep their own rows. Claiming links,
 -- it never merges, so nothing anyone recorded is rewritten.
 --
+-- Deleting an account never deletes people. Someone who leaves Beeswax was
+-- still at your Orientation Week, so their self person stays behind as a
+-- name only -- no account, no avatar, no contact details -- and so do the
+-- identities they created, which may sit in other people's snapshots. See
+-- private.release_people_of_deleted_account below.
+--
 -- Sign-in methods are not modelled here. Supabase Auth already records each
 -- linked provider (email, Apple, Google) in auth.identities; a public copy
 -- would only drift from it.
@@ -64,9 +70,10 @@ create table public.person (
   -- for identities once claimed. Not unique: several identities can be
   -- claimed by the same account.
   account_id uuid references public.account (id) on delete set null,
-  -- Who added this person. For a self person, the account itself.
-  created_by uuid not null default auth.uid()
-    references public.account (id) on delete cascade,
+  -- Who added this person. For a self person, the account itself. Null once
+  -- that account is deleted: the person outlives it as a name only.
+  created_by uuid default auth.uid()
+    references public.account (id) on delete set null,
   display_name text not null
     constraint display_name_length check (char_length(display_name) between 1 and 80),
   -- Path in the avatars storage bucket, once media lands (BWX-29).
@@ -281,3 +288,35 @@ comment on function private.handle_new_user() is
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function private.handle_new_user();
+
+-- Account deletion ----------------------------------------------------------
+
+-- Runs before the account row goes, so the foreign keys then null out
+-- account_id and created_by instead of deleting anyone. What is removed is
+-- everything that identifies or contacts a person: avatars, and the email and
+-- phone the deleted user had recorded for their identities. Names stay,
+-- because other people's memories refer to them.
+--
+-- A person left with neither account nor creator is visible to nobody until
+-- BWX-13 shows people through the snapshots they appear in.
+create function private.release_people_of_deleted_account()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  update public.person
+  set avatar_path = null, email = null, phone = null
+  where created_by = old.id or account_id = old.id;
+
+  return old;
+end;
+$$;
+
+comment on function private.release_people_of_deleted_account() is
+  'Trigger function: strips contact details and avatars from people tied to an account being deleted.';
+
+create trigger release_people
+  before delete on public.account
+  for each row execute function private.release_people_of_deleted_account();

@@ -1,12 +1,15 @@
 -- Tests for BWX-9: sign-up trigger, people, relationships, settings and the
 -- row-level security around them. Run with `supabase test db`.
 --
+-- The seed users in supabase/seed.sql exist too, so counts are scoped to
+-- this file's users.
+--
 -- Each block switches to the `authenticated` role with a JWT `sub`, which is
 -- exactly how PostgREST runs a signed-in user's request.
 
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(24);
+select plan(27);
 
 -- Users ---------------------------------------------------------------------
 
@@ -54,7 +57,8 @@ select is(
 );
 
 select is(
-  (select count(*)::int from public.account_settings),
+  (select count(*)::int from public.account_settings
+    where account_id in ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333')),
   3,
   'sign-up creates settings for each account'
 );
@@ -73,7 +77,8 @@ set local role authenticated;
 set local request.jwt.claims to '{"sub": "11111111-1111-1111-1111-111111111111", "role": "authenticated"}';
 
 select is(
-  (select count(*)::int from public.person),
+  (select count(*)::int from public.person
+    where account_id = created_by and account_id in ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333')),
   3,
   'Alice sees every self person'
 );
@@ -193,11 +198,34 @@ select is(
 
 reset role;
 delete from auth.users where id = '11111111-1111-1111-1111-111111111111';
+
 select is(
-  (select count(*)::int from public.person
-    where created_by = '11111111-1111-1111-1111-111111111111'),
+  (select count(*)::int from public.account where id = '11111111-1111-1111-1111-111111111111'),
   0,
-  'deleting a user removes their account, self person and identities'
+  'deleting a user deletes their account'
+);
+
+select ok(
+  exists (
+    select 1 from public.person
+    where display_name = 'Alice A' and account_id is null and created_by is null
+  ),
+  'a deleted user stays behind as a name-only person'
+);
+
+select ok(
+  exists (
+    select 1 from public.person
+    where display_name = 'Grandpa' and created_by is null and email is null
+  ),
+  'their identities stay too, with contact details removed'
+);
+
+select is(
+  (select count(*)::int from public.relationship
+    where account_id = '11111111-1111-1111-1111-111111111111'),
+  0,
+  'a deleted user''s relationships are removed'
 );
 
 select * from finish();

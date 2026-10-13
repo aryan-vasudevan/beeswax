@@ -12,19 +12,25 @@ concurrency:
 
 jobs:
   # Proves the migrations apply to an empty database in order, lints the
-  # result, and runs the pgTAP tests in supabase/tests. Mark this as a required check on PRs: it is the only thing standing
-  # between a broken migration and the live database, since there is one
-  # project and no preview branches on the Free plan.
+  # result, runs Supabase's security and performance advisors, and runs the
+  # pgTAP tests in supabase/tests. Mark this as a required check on PRs: it
+  # is the only thing standing between a broken migration and the live
+  # database, since there is one project and no preview branches on the Free
+  # plan.
   verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: supabase/setup-cli@v3
         with:
-          version: latest
+          # Pinned so a CLI release cannot break this check on its own. Bump it
+          # deliberately, alongside your local install.
+          version: 2.120.0
       - name: Apply all migrations to a fresh database
         run: supabase db start && supabase db reset --local
       - name: Lint
         run: supabase db lint --local --schema public,private --fail-on warning
+      - name: Security and performance advisors
+        run: supabase db advisors --local --fail-on warn
       - name: Database tests
         run: supabase test db
