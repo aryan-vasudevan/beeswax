@@ -15,9 +15,9 @@ select plan(27);
 
 insert into auth.users (id, email, raw_user_meta_data) values
   ('11111111-1111-1111-1111-111111111111', 'alice@example.com',
-    '{"username": "Alice", "display_name": "Alice A"}'),
+    '{"username": "Test_Alice", "display_name": "Alice A"}'),
   ('22222222-2222-2222-2222-222222222222', 'bob@example.com',
-    '{"username": "bob"}'),
+    '{"username": "test_bob"}'),
   -- Apple/Google style: a name, no username.
   ('33333333-3333-3333-3333-333333333333', 'carol@example.com',
     '{"full_name": "Carol Provider"}');
@@ -26,7 +26,7 @@ insert into auth.users (id, email, raw_user_meta_data) values
 
 select is(
   (select username::text from public.account where id = '11111111-1111-1111-1111-111111111111'),
-  'alice',
+  'test_alice',
   'sign-up creates an account with the username, lowercased'
 );
 
@@ -40,7 +40,7 @@ select is(
 select is(
   (select display_name from public.person
     where account_id = '22222222-2222-2222-2222-222222222222' and created_by = account_id),
-  'bob',
+  'test_bob',
   'display name falls back to the username'
 );
 
@@ -65,7 +65,7 @@ select is(
 
 select throws_ok(
   $$insert into auth.users (id, email, raw_user_meta_data) values
-    ('44444444-4444-4444-4444-444444444444', 'dup@example.com', '{"username": "ALICE"}')$$,
+    ('44444444-4444-4444-4444-444444444444', 'dup@example.com', '{"username": "TEST_ALICE"}')$$,
   '23505',
   null,
   'a username taken in another case fails the sign-up'
@@ -108,7 +108,7 @@ select throws_ok(
 update public.account set username = 'hacked'
   where id = '22222222-2222-2222-2222-222222222222';
 select lives_ok(
-  $$update public.account set username = 'alice_a'
+  $$update public.account set username = 'test_alice_a'
     where id = '11111111-1111-1111-1111-111111111111'$$,
   'Alice can change her own username'
 );
@@ -180,7 +180,7 @@ select is(
 
 select is(
   (select username::text from public.account where id = '22222222-2222-2222-2222-222222222222'),
-  'bob',
+  'test_bob',
   'Alice''s earlier update to Bob''s username changed nothing'
 );
 
