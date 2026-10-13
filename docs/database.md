@@ -98,6 +98,12 @@ Write migrations by hand rather than generating them from a database you edited
 in Studio. `supabase db diff` is there if you need it, but a generated diff
 tends to carry noise and loses the ordering you actually meant.
 
+Tests live in `supabase/tests/database/*.test.sql` (pgTAP) and run with
+`supabase test db`, locally and in CI. Any migration that adds a table or a
+policy should add tests that act as a signed-in user -- `set local role
+authenticated` plus a `request.jwt.claims` sub -- and prove both what that
+user can do and what they cannot.
+
 Two rules that keep the history replayable:
 
 - **Never edit a migration that has been pushed.** The remote records which
