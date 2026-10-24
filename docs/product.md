@@ -54,11 +54,14 @@ and settings use plain words, because "Make Forager" helps nobody.
 | **Sealed cell**  | A snapshot frozen as it was (BWX-60). Reflections can still be layered on.                                                                                                                 |
 | **Nectar**       | Unsorted media: imports and camera-roll batches waiting to become snapshots. Turning nectar into honey is the organizing step.                                                             |
 | **Brood**        | Drafts. Cells still being built.                                                                                                                                                           |
+| **Hatching**     | A brood cell whose perspectives stay hidden until everyone has added theirs, then all hatch at once (BWX-122).                                                                             |
 | **Swarm**        | A group of people who keep sharing memories (BWX-62). A family is a swarm with a long life (M7).                                                                                           |
 | **Waggle**       | An invitation. The waggle card shows only what is safe to show: who invited you, not what the memory contains.                                                                             |
 | **Pollen trail** | Selecting a person, place or tradition lights the path through every cell it touches.                                                                                                      |
 | **Person hive**  | Opening a person shows the comb you share with them (BWX-58). Replaces profile pages.                                                                                                      |
 | **Buzz**         | Notifications. Calm, batched, never manipulative.                                                                                                                                          |
+| **Hum**          | Ten seconds of the room's sound kept in a cell, played softly when it opens (BWX-123).                                                                                                     |
+| **Ghost cell**   | A faint wax outline where a memory is probably missing: a skipped tradition, a friend not seen in years (BWX-43).                                                                          |
 
 ### Navigation
 
@@ -244,6 +247,28 @@ living reflections and sealing (BWX-60); revision history; time capsules
 (BWX-61); person hives (BWX-58); traditions (BWX-54, BWX-57); life chapters;
 swarms (BWX-62); suggested links (BWX-52, BWX-53); nectar tray and imports
 (BWX-55, BWX-56); voice memories; advanced hive (zoom, trails).
+
+What only Beeswax does -- each one built on perspectives, people without
+accounts, or time:
+
+- **Hatching** (BWX-122): perspectives stay hidden until everyone's are in,
+  then hatch together. Nobody's memory is shaped by whoever posted first.
+- **Grandma's phone line** (BWX-91, BWX-63): a relative without an account
+  answers "What do you remember about this?" about one photo, by voice.
+- **The hum** (BWX-123): ten seconds of ambient sound per cell.
+- **The inside-joke dictionary** (BWX-62): every inside joke a swarm has
+  written down, each linked to the memory it started in.
+- **Then and now** (BWX-125): retake an old photo in the same spot; on-device
+  location only.
+- **Ghost cells** (BWX-43): missing memories shown as empty outlines, never
+  as notifications.
+- **Last together** (BWX-126): a quiet, opt-in marker on the last memory
+  with a whole group.
+- **When two hives touch** (BWX-124): separate groups at the same event link
+  their cells, only if both owners agree and only public_ok items cross.
+
+Not building, on purpose: streaks, likes, view or follower counts, a public
+feed, and AI-generated images. A memory app must never invent the past.
 
 ### Phase 3 — expansion
 
