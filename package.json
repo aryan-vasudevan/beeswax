@@ -1,0 +1,21 @@
+{
+  "name": "beeswax",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "start": "npm run start -w @beeswax/app",
+    "ios": "npm run ios -w @beeswax/app",
+    "android": "npm run android -w @beeswax/app",
+    "web": "npm run web -w @beeswax/app",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
+  }
+}
