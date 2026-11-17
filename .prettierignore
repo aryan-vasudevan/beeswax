@@ -1,2 +1,6 @@
 supabase/
 package-lock.json
+
+# Build output. `expo export` writes here, and prettier does not read
+# .gitignore, so without this a local web build breaks format:check.
+dist/
