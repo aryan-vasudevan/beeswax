@@ -5,3 +5,9 @@
 
 # macOS
 .DS_Store
+
+# Dependencies
+node_modules/
+
+# Git worktrees, created by tooling inside the repo
+.claude/worktrees/
