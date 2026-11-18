@@ -1,9 +1,10 @@
-import { useTheme } from 'expo-router';
 import { TabList, TabSlot, TabTrigger, TabTriggerSlotProps, Tabs } from 'expo-router/ui';
 import { AndroidSymbol, SymbolView } from 'expo-symbols';
-import { Pressable, StyleSheet, Text, useWindowDimensions } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 
+import { Text } from '@/components/ui/text';
 import { TABS } from '@/components/tabs';
+import { minTouchTarget, useTheme } from '@/theme';
 
 // Below this width the web app uses a bottom bar like the phone apps; above
 // it, a side nav with room for wider content.
@@ -11,17 +12,21 @@ const SIDE_NAV_MIN_WIDTH = 768;
 
 export default function AppTabs() {
   const wide = useWindowDimensions().width >= SIDE_NAV_MIN_WIDTH;
-  const { colors } = useTheme();
+  const { colors, space } = useTheme();
   return (
     <Tabs style={wide ? styles.row : styles.column}>
       <TabSlot style={styles.slot} />
       <TabList
         style={[
           wide ? styles.sideNav : styles.bottomBar,
-          { backgroundColor: colors.card, borderColor: colors.border },
+          { backgroundColor: colors.surface, borderColor: colors.border },
         ]}
       >
-        {wide && <Text style={[styles.brand, { color: colors.text }]}>Beeswax</Text>}
+        {wide && (
+          <Text style={{ marginBottom: space.lg, paddingHorizontal: space.md }} variant="title">
+            Beeswax
+          </Text>
+        )}
         {TABS.map((tab) => (
           <TabTrigger key={tab.name} name={tab.name} href={tab.href} asChild>
             <NavButton wide={wide} icon={tab.md} label={tab.label} />
@@ -35,19 +40,30 @@ export default function AppTabs() {
 type NavButtonProps = TabTriggerSlotProps & { wide: boolean; icon: AndroidSymbol; label: string };
 
 function NavButton({ wide, icon, label, isFocused, ...props }: NavButtonProps) {
-  const { colors } = useTheme();
-  const color = isFocused ? colors.primary : colors.text;
+  const { colors, radius, space } = useTheme();
   return (
     <Pressable
       {...props}
       accessibilityLabel={label}
       style={({ pressed }) => [
         wide ? styles.sideButton : styles.bottomButton,
-        (isFocused || pressed) && { backgroundColor: colors.border },
+        {
+          borderRadius: radius.md,
+          gap: wide ? space.md : space.xs / 2,
+          paddingHorizontal: wide ? space.md : space.lg,
+        },
+        isFocused && { backgroundColor: colors.surfaceSelected },
+        pressed && { backgroundColor: colors.surfacePressed },
       ]}
     >
-      <SymbolView name={{ web: icon }} size={24} tintColor={color} />
-      <Text style={[wide ? styles.sideLabel : styles.bottomLabel, { color }]}>{label}</Text>
+      <SymbolView
+        name={{ web: icon }}
+        size={24}
+        tintColor={isFocused ? colors.accentText : colors.textMuted}
+      />
+      <Text ink={isFocused ? 'accent' : 'muted'} variant={wide ? 'body' : 'micro'}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -64,16 +80,11 @@ const styles = StyleSheet.create({
     padding: 12,
     width: 220,
   },
-  brand: { fontSize: 20, fontWeight: '700', marginBottom: 16, paddingHorizontal: 12 },
   sideButton: {
     alignItems: 'center',
-    borderRadius: 8,
     flexDirection: 'row',
-    gap: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    minHeight: minTouchTarget,
   },
-  sideLabel: { fontSize: 16 },
   bottomBar: {
     borderTopWidth: StyleSheet.hairlineWidth,
     justifyContent: 'space-around',
@@ -81,10 +92,7 @@ const styles = StyleSheet.create({
   },
   bottomButton: {
     alignItems: 'center',
-    borderRadius: 8,
-    gap: 2,
-    paddingHorizontal: 16,
-    paddingVertical: 4,
+    justifyContent: 'center',
+    minHeight: minTouchTarget,
   },
-  bottomLabel: { fontSize: 11 },
 });
