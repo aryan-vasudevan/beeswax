@@ -1,5 +1,4 @@
 import { render } from '@testing-library/react-native';
-import { DefaultTheme, ThemeProvider } from 'expo-router';
 
 import Hive from '@/app/index';
 
@@ -9,15 +8,10 @@ import Hive from '@/app/index';
 describe('Hive', () => {
   // `render` is async as of @testing-library/react-native v14 -- without the
   // await you get an unresolved promise and "getByText is not a function".
-  it('renders the screen', async () => {
-    // The screen reads the navigation theme, which _layout.tsx normally
-    // provides. Rendering it bare throws "Couldn't find a theme".
-    const { getByText } = await render(
-      <ThemeProvider value={DefaultTheme}>
-        <Hive />
-      </ThemeProvider>,
-    );
+  it('renders the empty state', async () => {
+    const { getByText } = await render(<Hive />);
 
-    expect(getByText('Hive')).toBeTruthy();
+    expect(getByText('Your hive is empty wax')).toBeTruthy();
+    expect(getByText('Create a snapshot')).toBeTruthy();
   });
 });

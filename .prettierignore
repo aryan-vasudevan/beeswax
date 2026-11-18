@@ -8,3 +8,6 @@ expo-env.d.ts
 # Build output. `expo export` writes here, and prettier does not read
 # .gitignore, so without this a local web build breaks format:check.
 dist/
+
+# Git worktrees: each has its own checkout to format
+.claude/worktrees/
