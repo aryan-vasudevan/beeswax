@@ -48,6 +48,16 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Export the static web bundle
+        # src/lib/supabase.ts throws at import if these are missing, and a
+        # static export evaluates every route, so the bundle will not build
+        # without them. Repository variables are used when they are set, so a
+        # deployed preview talks to the real project; otherwise placeholders
+        # let the job prove what it claims to prove -- that the web target
+        # still bundles -- rather than failing every PR on setup that has not
+        # happened yet, which is how the preview job below behaves too.
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321' }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key' }}
         run: npx expo export --platform web
         working-directory: apps/app
       - uses: actions/upload-artifact@v7
