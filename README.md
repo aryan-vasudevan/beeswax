@@ -6,7 +6,7 @@ Supabase.
 ## Layout
 
 ```
-apps/app/    Expo app (Expo Router, TypeScript)
+apps/app/    Expo app (Expo Router, TypeScript) -- design system in docs/design.md
 packages/    shared code, as it appears
 supabase/    migrations and local stack config -- see docs/database.md
 ```
@@ -27,6 +27,7 @@ npm start               # then press i, a or w
 ```sh
 npm run typecheck
 npm run lint
+npm run check:contrast  # the palette against WCAG AA
 npm run format:check    # npm run format to fix
 ```
 

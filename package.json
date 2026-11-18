@@ -13,7 +13,8 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "check:contrast": "npm run check:contrast -w @beeswax/app"
   },
   "devDependencies": {
     "prettier": "^3.9.10"
