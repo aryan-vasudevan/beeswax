@@ -166,6 +166,21 @@ For the migrations that follow:
   creates the table. RLS on with no policies denies everything, which is the
   safe state to land in; the policies then open it deliberately.
 
+Policies that need to know "can this user see X?" call security definer
+helpers in `private`: `can_view_person`, `is_blocked`,
+`is_discoverable_self_person` (BWX-9), and `can_view_snapshot`,
+`snapshot_role` (BWX-13). Doing it with plain subqueries makes the policies
+on `snapshot`, its child tables and `person` recurse into each other.
+`authenticated` has usage on `private` and execute on those functions only
+so policies can call them; PostgREST does not expose `private`, so clients
+still cannot. Reuse them in later policies (media, reflections, moments)
+rather than re-deriving access.
+
+A policy that calls one of these helpers on the row being inserted will not
+see that row: the helper reads the statement's snapshot. Put direct column
+checks (`owner_id = auth.uid()`) before the helper wherever an INSERT ...
+RETURNING must read its own row back.
+
 `config.toml` leaves `auto_expose_new_tables` at the cloud default rather than
 requiring explicit grants. Turning it off would be stricter, but it is an
 `[api]` setting, and `[api]` is ignored on the production branch — so local
