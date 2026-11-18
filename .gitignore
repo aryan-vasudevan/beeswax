@@ -6,8 +6,9 @@
 # macOS
 .DS_Store
 
-# Dependencies
+# Dependencies and Expo output, for anything outside a workspace .gitignore
 node_modules/
+.expo/
 
 # Git worktrees, created by tooling inside the repo
 .claude/worktrees/

@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react-native';
 
-import Hive from '@/app/index';
+import Hive from '@/app/(app)/index';
 
 // Deliberately small. This exists so the test job has something real to run: it
 // proves a screen renders, which is enough to catch a broken preset, transform
