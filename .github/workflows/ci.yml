@@ -1,0 +1,125 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Expo SDK 57 wants Node 20 or newer. Pinned so CI does not drift onto a
+  # version nobody is developing against.
+  NODE_VERSION: '22'
+
+jobs:
+  # One job per check rather than four steps in one, so a failing lint does not
+  # hide a failing typecheck -- you get the whole picture from a single run.
+  check:
+    name: ${{ matrix.check }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        check: [typecheck, lint, format:check, test]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run ${{ matrix.check }}
+
+  # Proves the web target still bundles. Unit tests run in jest-expo's universal
+  # environment, which would not catch a web-only break -- and web is the half
+  # of the product that a reviewer can actually click through.
+  web:
+    name: web build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Export the static web bundle
+        run: npx expo export --platform web
+        working-directory: apps/app
+      - uses: actions/upload-artifact@v7
+        with:
+          name: web-dist
+          path: apps/app/dist
+          retention-days: 7
+
+  # Publishes the bundle the `web` job already built to EAS Hosting under one
+  # alias per PR, so reviewing a change does not mean running it locally.
+  #
+  # Needs an EXPO_TOKEN secret and an EAS project linked in app.json -- see
+  # README.md. Until both exist this job leaves a notice and passes, instead of
+  # failing every PR on setup that has not happened yet.
+  preview:
+    name: web preview
+    needs: [check, web]
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check whether previews are configured
+        id: configured
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -n "$EXPO_TOKEN" ]; then
+            echo 'value=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'value=false' >> "$GITHUB_OUTPUT"
+            echo '::notice title=Web preview skipped::Set the EXPO_TOKEN repository secret and link an EAS project to deploy PR previews. See README.md.'
+          fi
+
+      - uses: actions/checkout@v7
+        if: steps.configured.outputs.value == 'true'
+
+      - uses: actions/setup-node@v7
+        if: steps.configured.outputs.value == 'true'
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - uses: actions/download-artifact@v8
+        if: steps.configured.outputs.value == 'true'
+        with:
+          name: web-dist
+          path: apps/app/dist
+
+      - name: Deploy to EAS Hosting
+        id: deploy
+        if: steps.configured.outputs.value == 'true'
+        working-directory: apps/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          npx eas-cli@latest deploy \
+            --non-interactive \
+            --alias "pr-${{ github.event.number }}" | tee "$RUNNER_TEMP/deploy.log"
+          # The URL is only in the CLI output. Missing it costs a comment, not
+          # the job -- the deployment itself already succeeded by this point.
+          url="$(grep -oE 'https://[A-Za-z0-9._~:/?#@!$&()*+,;=%-]+\.expo\.app[A-Za-z0-9._~:/?#@!$&()*+,;=%-]*' "$RUNNER_TEMP/deploy.log" | tail -1 || true)"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Comment the preview URL
+        if: steps.configured.outputs.value == 'true' && steps.deploy.outputs.url != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          URL: ${{ steps.deploy.outputs.url }}
+          PR: ${{ github.event.number }}
+        run: |
+          body="Web preview: $URL"
+          # Edit the existing comment so pushing ten times leaves one comment.
+          gh pr comment "$PR" --body "$body" --edit-last ||
+            gh pr comment "$PR" --body "$body"
