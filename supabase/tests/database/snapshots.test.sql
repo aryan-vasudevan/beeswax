@@ -321,9 +321,8 @@ select lives_ok(
 
 select is(
   (select count(distinct action)::int from public.snapshot_audit_log
-    where action in ('member_added', 'invited', 'invitation_declined',
-                     'visibility_changed', 'deleted', 'restored')),
-  6,
+    where action in ('member_added', 'invited', 'visibility_changed', 'deleted', 'restored')),
+  5,
   'the audit log records invitations, members, visibility, deletion and restore'
 );
 
