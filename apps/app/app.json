@@ -8,9 +8,11 @@
     "scheme": "beeswax",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "bundleIdentifier": "com.beeswax.app",
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.beeswax.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
